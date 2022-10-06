@@ -6,7 +6,8 @@ namespace _Project.Scripts
 {
     public class GameBoard : MonoBehaviour
     {
-        public delegate void GameBoardChanged();
+        public delegate void GameBoardChanged(Direction? direction);
+
         public static event GameBoardChanged OnGameBoardChanged;
 
         public readonly BoardState BoardState = new();
@@ -16,34 +17,35 @@ namespace _Project.Scripts
         {
             BoardState.SetRandomCube();
             BoardState.SetRandomCube();
-            OnGameBoardChanged?.Invoke();
+            OnGameBoardChanged?.Invoke(null);
         }
 
         // Update is called once per frame
         private void Update()
         {
-            var moved = false;
+            Direction? direction = null;
             if (Input.GetKeyDown("up") || Input.GetKeyDown("w"))
             {
-                moved = BoardState.Move(Direction.Up);
+                direction = Direction.Up;
             }
             else if (Input.GetKeyDown("down") || Input.GetKeyDown("s"))
             {
-                moved = BoardState.Move(Direction.Down);
+                direction = Direction.Down;
             }
             else if (Input.GetKeyDown("left") || Input.GetKeyDown("a"))
             {
-                moved = BoardState.Move(Direction.Left);
+                direction = Direction.Left;
             }
             else if (Input.GetKeyDown("right") || Input.GetKeyDown("d"))
             {
-                moved = BoardState.Move(Direction.Right);
+                direction = Direction.Right;
             }
 
-            if (moved)
+            if (direction == null) return;
+
+            if (BoardState.Move(direction.Value))
             {
-                // trigger move event
-                OnGameBoardChanged?.Invoke();
+                OnGameBoardChanged?.Invoke(direction.Value);
             }
         }
     }
