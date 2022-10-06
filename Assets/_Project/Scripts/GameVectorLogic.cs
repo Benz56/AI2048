@@ -3,12 +3,12 @@ using System.Linq;
 
 namespace _Project.Scripts
 {
-    public class Row
+    public class GameVectorLogic
     {
-        public readonly List<Cube> cubes;
+        private readonly List<Cube> cubes;
         private bool IsEmpty => cubes.All(cube => cube.IsZero);
 
-        public Row(List<Cube> cubes)
+        public GameVectorLogic(List<Cube> cubes)
         {
             this.cubes = cubes;
         }

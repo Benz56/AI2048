@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace _Project.Scripts
@@ -42,6 +43,22 @@ namespace _Project.Scripts
                 entries.Reverse();
             
             return entries;
+        }
+        
+        public List<List<T>> GetVectorsFromDirection(Direction direction)
+        {
+            var vectors = new List<List<T>>();
+            for (var i = 0; i < size; i++)
+            {
+                vectors.Add(GetVectorInGrid(i, direction));
+            }
+
+            return vectors;
+        }
+
+        public List<T> AsList()
+        {
+            return grid.Cast<T>().ToList();
         }
     }
 }
