@@ -18,6 +18,8 @@ namespace _Project.Scripts
             { new(), new(), new(), new() }
         };
 
+        public int Score = 0;
+
         public Cube this[int x, int y]
         {
             get => board[x, y];
@@ -35,7 +37,7 @@ namespace _Project.Scripts
             for (var i = start; i != end; i += step)
             {
                 var row = GetRow();
-                row.Merge();
+                Score += row.Merge();
 
                 Row GetRow()
                 {
@@ -52,15 +54,14 @@ namespace _Project.Scripts
             }
 
             var newState = board.Cast<Cube>().Select(cube => cube.Value).ToArray();
-            if (!initialState.SequenceEqual(newState))
+            if (initialState.SequenceEqual(newState))
             {
-                SetRandomCube();
-                Debug.Log(this);
-                return true;
+                return false;
             }
+            
+            SetRandomCube();
+            return true;
 
-            Debug.Log(this);
-            return false;
         }
 
         public bool IsGameOver()

@@ -17,7 +17,6 @@ namespace _Project.Scripts
             BoardState.SetRandomCube();
             BoardState.SetRandomCube();
             OnGameBoardChanged?.Invoke();
-            Debug.Log(BoardState);
         }
 
         // Update is called once per frame

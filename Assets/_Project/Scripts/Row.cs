@@ -13,10 +13,11 @@ namespace _Project.Scripts
             this.cubes = cubes;
         }
 
-        public void Merge()
+        public int Merge()
         {
-            if (IsEmpty) return;
-            
+            var score = 0;
+            if (IsEmpty) return score;
+
             var mergedRow = new List<Cube>();
 
             var rowToMerge = cubes.Where(cube => !cube.IsZero).ToList();
@@ -27,6 +28,7 @@ namespace _Project.Scripts
                 {
                     if (j < rowToMerge.Count - 1 && rowToMerge[j].Value == rowToMerge[j + 1].Value)
                     {
+                        score += rowToMerge[j].Value * 2;
                         mergedRow.Add(new Cube(rowToMerge[j].Value * 2));
                         j++;
                     }
@@ -36,8 +38,9 @@ namespace _Project.Scripts
             else mergedRow.Add(rowToMerge[0]);
 
             UpdateRow(mergedRow);
+            return score;
         }
-        
+
         private void UpdateRow(IReadOnlyList<Cube> mergedRow)
         {
             for (var j = 0; j < BoardState.BoardSize; j++)
