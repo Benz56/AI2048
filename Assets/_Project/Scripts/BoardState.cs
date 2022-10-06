@@ -17,6 +17,7 @@ namespace _Project.Scripts
             { new(), new(), new(), new() },
             { new(), new(), new(), new() }
         };
+        private readonly SmartGrid<Cube> smartGrid = new(BoardSize, true);
 
         public int Score = 0;
 
@@ -37,6 +38,8 @@ namespace _Project.Scripts
             for (var i = start; i != end; i += step)
             {
                 var row = GetRow();
+                var row2 = smartGrid.GetVectorInGrid(i, direction);
+                Debug.Log($"{i} {string.Join(",", row.cubes.Select(cube => cube.Value))} {string.Join(",", row2.Select(cube => cube.Value))}");
                 Score += row.Merge();
 
                 Row GetRow()

@@ -2,6 +2,10 @@ namespace _Project.Scripts
 {
     public class Cube
     {
+        public Cube() : this(0)
+        {
+        }
+
         public Cube(int value = 0)
         {
             Value = value;

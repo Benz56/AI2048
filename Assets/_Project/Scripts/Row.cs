@@ -5,7 +5,7 @@ namespace _Project.Scripts
 {
     public class Row
     {
-        private readonly List<Cube> cubes;
+        public readonly List<Cube> cubes;
         private bool IsEmpty => cubes.All(cube => cube.IsZero);
 
         public Row(List<Cube> cubes)
