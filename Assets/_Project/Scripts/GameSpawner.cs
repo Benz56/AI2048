@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -10,30 +11,7 @@ namespace _Project.Scripts
         public GameBoard gameBoard;
         public GameObject cubePrefab;
 
-        private readonly Color[] textColors =
-        {
-            new(4, 4, 4),
-            new(242, 235, 226)
-        };
-
-        private readonly List<Color> cubeColors = new()
-        {
-            new Color(238 / 255f, 228 / 255f, 218 / 255f),
-            new Color(238 / 255f, 228 / 255f, 218 / 255f),
-            new Color(237 / 255f, 224 / 255f, 200 / 255f),
-            new Color(242 / 255f, 177 / 255f, 121 / 255f),
-            new Color(245 / 255f, 149 / 255f, 99 / 255f),
-            new Color(246 / 255f, 124 / 255f, 95 / 255f),
-            new Color(246 / 255f, 94 / 255f, 59 / 255f),
-            new Color(237 / 255f, 207 / 255f, 114 / 255f),
-            new Color(237 / 255f, 204 / 255f, 97 / 255f),
-            new Color(237 / 255f, 200 / 255f, 80 / 255f),
-            new Color(237 / 255f, 200 / 255f, 80 / 255f),
-            new Color(237 / 255f, 194 / 255f, 46 / 255f),
-            new Color(60 / 255f, 58 / 255f, 50 / 255f)
-        };
-
-        private readonly SmartGrid<GameObject> cubesSmartGrid = new(BoardState.BoardSize);
+        private readonly SmartGrid<CubePrefab> cubesSmartGrid = new(BoardState.BoardSize);
         private GameObject boardHolder;
         private TextMeshPro scoreTextMeshPro;
         private Coroutine gameOverCheckCoroutine;
@@ -55,13 +33,14 @@ namespace _Project.Scripts
                 for (var y = 0; y < BoardState.BoardSize; y++)
                 {
                     var invertY = BoardState.BoardSize - y - 1; // invert y axis to match board state.
-                    cubesSmartGrid[x, y] = Instantiate(cubePrefab, new Vector3(x - BoardState.BoardSize / 2.0f + 0.5f, invertY - 0.5f, -4), Quaternion.identity, boardHolder.transform);
+                    cubesSmartGrid[x, y] = Instantiate(cubePrefab, new Vector3(x - BoardState.BoardSize / 2.0f + 0.5f, invertY - 0.5f, -4), Quaternion.identity, boardHolder.transform).GetComponent<CubePrefab>();
                 }
             }
 
             GameBoard.OnGameBoardChanged += MoveCubes;
+            BoardState.OnCubeSpawned += CubeSpawned;
             MoveCubes(null);
-            gameOverCheckCoroutine = StartCoroutine(CheckGameOver());
+            StartCoroutine(CheckGameOver());
         }
 
         private IEnumerator<WaitForSeconds> CheckGameOver()
@@ -72,7 +51,7 @@ namespace _Project.Scripts
                 if (gameBoard.BoardState.IsGameOver())
                 {
                     scoreTextMeshPro.faceColor = Color.red;
-                    StopCoroutine(gameOverCheckCoroutine);
+                    yield break;
                 }
 
                 yield return wait;
@@ -82,16 +61,36 @@ namespace _Project.Scripts
 
         private void MoveCubes(Direction? direction)
         {
+            Debug.Log("?");
             if (direction == null)
             {
-                cubesSmartGrid.ForEach(SetCube);
+                cubesSmartGrid.ForEach((x, y, prefab) => prefab.SetState(gameBoard.BoardState[x, y]));
             } else
             {
-                cubesSmartGrid.ForEach(SetCube);
-                // cubesSmartGrid.GetVectorsFromDirection(direction.Value).ForEach(list =>
-                // {
-                //     // TODO Compare content from board state with physical cubes and create animation.
-                // });
+                for (var i = 0; i < BoardState.BoardSize; i++)
+                {
+                    var physicalCubes = cubesSmartGrid.GetVectorInGrid(i, direction.Value);
+                    var boardCubes = gameBoard.BoardState.boardSmartGrid.GetVectorInGrid(i, direction.Value);
+                    var filled = physicalCubes[0].value != 0 ? 1 : 0;
+                    for (var j = 1; j < BoardState.BoardSize; j++)
+                    {
+                        if (physicalCubes[j].value == 0 || physicalCubes[j].ignoreInAnimation)
+                        {
+                            physicalCubes[j].ignoreInAnimation = false; // Used to ignore new tiles.
+                            continue;
+                        }
+                        physicalCubes[j].ignoreInAnimation = false; // Used to ignore new tiles.
+
+                        if (j != filled)
+                        {
+                            Debug.Log("Animation of " + physicalCubes[j].value + " from " + j + " to " + filled);
+                            physicalCubes[j].CreateMoveAnimation(physicalCubes[filled]);
+                            physicalCubes[filled].SetState(boardCubes[filled]);
+                        }
+
+                        filled++;
+                    }
+                }
             }
 
             if (gameBoard.BoardState.Score > 0)
@@ -100,46 +99,34 @@ namespace _Project.Scripts
             }
         }
 
-        private void SetCube(int x, int y, GameObject cube)
+        private void CubeSpawned(int x, int y, Cube cube)
         {
-            var state = gameBoard.BoardState[x, y];
-            if (state.IsZero)
-            {
-                cube.SetActive(false);
-                return;
-            }
-
-            cube.SetActive(true);
-            var changed = state.Value != (int.TryParse(cube.GetComponentInChildren<TextMeshProUGUI>().text, out var i) ? i : 0);
-            cube.GetComponentInChildren<TextMeshProUGUI>().text = state.Value.ToString();
-            cube.GetComponentInChildren<TextMeshProUGUI>().color = state.Value <= 4 ? textColors[0] : textColors[1];
-            var geometricSeqToIndex = (int)(Mathf.Log(state.Value, 2) - 1);
-            geometricSeqToIndex = geometricSeqToIndex > cubeColors.Count - 1 ? cubeColors.Count - 1 : geometricSeqToIndex;
-            cube.GetComponent<MeshRenderer>().material.color = cubeColors[geometricSeqToIndex];
-            if (changed)
-            {
-                StartCoroutine(Animate(cube));
-            }
+            Debug.Log("2");
+            cubesSmartGrid[x, y].SetState(cube);
+            cubesSmartGrid[x, y].ignoreInAnimation = true;
+            cubesSmartGrid[x, y].Visible(true);
         }
 
         private void SetScoreText(int score)
         {
             scoreTextMeshPro.text = $"Score\n{score}";
         }
-
-        private IEnumerator<WaitForSeconds> Animate(GameObject physicalCube)
+        
+        public override string ToString()
         {
-            // increase size
-            physicalCube.transform.localScale *= 1.02f;
-            yield return new WaitForSeconds(0.1f);
-            physicalCube.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
-        }
-    }
+            var maxDigitLength = cubesSmartGrid.AsList().Select(cube => cube.value).Max().ToString().Length;
+            var boardString = gameBoard.BoardState.IsGameOver() + "\n";
+            for (var y = 0; y < BoardState.BoardSize; y++)
+            {
+                for (var x = 0; x < BoardState.BoardSize; x++)
+                {
+                    boardString += cubesSmartGrid[x, y].value.ToString().PadRight(maxDigitLength, '_') + " ";
+                }
 
-    [Serializable]
-    public struct ValueColorCombo
-    {
-        public int value;
-        public Color color;
+                boardString += "\n";
+            }
+
+            return boardString;
+        }
     }
 }

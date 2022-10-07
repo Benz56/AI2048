@@ -7,26 +7,30 @@ namespace _Project.Scripts
 {
     public class BoardState
     {
+        public delegate void CubeSpawned(int x, int y, Cube cube);
+
+        public static event CubeSpawned OnCubeSpawned;
+        
         public const int BoardSize = 4;
 
         private const float FourProbability = 0.1f;
-        private readonly SmartGrid<Cube> smartGrid = new(BoardSize, true);
+        public readonly SmartGrid<Cube> boardSmartGrid = new(BoardSize, true);
 
         public int Score;
 
         public Cube this[int x, int y]
         {
-            get => smartGrid[x, y];
-            set => smartGrid[x, y] = value;
+            get => boardSmartGrid[x, y];
+            set => boardSmartGrid[x, y] = value;
         }
 
         public bool Move(Direction direction)
         {
-            var initialState = smartGrid.AsList().Select(cube => cube.Value).ToArray();
+            var initialState = boardSmartGrid.AsList().Select(cube => cube.Value).ToArray();
 
-            smartGrid.GetVectorsFromDirection(direction).ForEach(vector => Score += new GameVectorLogic(vector).Merge());
+            boardSmartGrid.GetVectorsFromDirection(direction).ForEach(vector => Score += new GameVectorLogic(vector).Merge());
 
-            var newState = smartGrid.AsList().Select(cube => cube.Value).ToArray();
+            var newState = boardSmartGrid.AsList().Select(cube => cube.Value).ToArray();
             if (initialState.SequenceEqual(newState))
             {
                 return false;
@@ -44,7 +48,7 @@ namespace _Project.Scripts
             }
 
             // Check if any of the rows/columns can be merged. Does this by checking from two perpendicular sides and looking ahead if there is a merge possible.
-            foreach (var vector in new List<Direction> { Direction.Left, Direction.Up }.SelectMany(direction => smartGrid.GetVectorsFromDirection(direction)))
+            foreach (var vector in new List<Direction> { Direction.Left, Direction.Up }.SelectMany(direction => boardSmartGrid.GetVectorsFromDirection(direction)))
             {
                 for (var i = 0; i < vector.Count -1; i++)
                 {
@@ -65,7 +69,7 @@ namespace _Project.Scripts
             {
                 for (var y = 0; y < BoardSize; y++)
                 {
-                    if (smartGrid[x, y].Value == 0)
+                    if (boardSmartGrid[x, y].Value == 0)
                     {
                         emptySlots.Add((x, y));
                     }
@@ -84,19 +88,20 @@ namespace _Project.Scripts
             }
 
             var (x, y) = emptySlots[new Random().Next(emptySlots.Count)];
-            smartGrid[x, y].Value = FourProbability >= new Random().NextDouble() ? 4 : 2;
+            boardSmartGrid[x, y].Value = FourProbability >= new Random().NextDouble() ? 4 : 2;
+            OnCubeSpawned?.Invoke(x, y, boardSmartGrid[x, y]);
             return true;
         }
 
         public override string ToString()
         {
-            var maxDigitLength = smartGrid.AsList().Select(cube => cube.Value).Max().ToString().Length;
+            var maxDigitLength = boardSmartGrid.AsList().Select(cube => cube.Value).Max().ToString().Length;
             var boardString = IsGameOver() + "\n";
             for (var y = 0; y < BoardSize; y++)
             {
                 for (var x = 0; x < BoardSize; x++)
                 {
-                    boardString += smartGrid[x, y].Value.ToString().PadRight(maxDigitLength, '_') + " ";
+                    boardString += boardSmartGrid[x, y].Value.ToString().PadRight(maxDigitLength, '_') + " ";
                 }
 
                 boardString += "\n";

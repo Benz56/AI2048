@@ -9,6 +9,7 @@ namespace _Project.Scripts
         public delegate void GameBoardChanged(Direction? direction);
 
         public static event GameBoardChanged OnGameBoardChanged;
+        public static int AnimationCount { get; set; }
 
         public readonly BoardState BoardState = new();
 
@@ -23,6 +24,7 @@ namespace _Project.Scripts
         // Update is called once per frame
         private void Update()
         {
+            if (AnimationCount > 0) return;
             Direction? direction = null;
             if (Input.GetKeyDown("up") || Input.GetKeyDown("w"))
             {
