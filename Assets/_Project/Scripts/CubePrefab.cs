@@ -21,7 +21,6 @@ namespace _Project.Scripts
         private readonly List<Color> cubeColors = new()
         {
             new Color(238 / 255f, 228 / 255f, 218 / 255f),
-            new Color(238 / 255f, 228 / 255f, 218 / 255f),
             new Color(237 / 255f, 224 / 255f, 200 / 255f),
             new Color(242 / 255f, 177 / 255f, 121 / 255f),
             new Color(245 / 255f, 149 / 255f, 99 / 255f),
