@@ -111,7 +111,7 @@ namespace _Project.Scripts
 
             GameObject CreateCopy()
             {
-                var instantiate = Instantiate(gameObject);
+                var instantiate = Instantiate(gameObject, transform.parent, true);
                 var cubePrefab = GetComponent<CubePrefab>();
                 cubePrefab.Visible(true); // Make sure it is visible. Sometimes it is not visible for some reason
                 instantiate.transform.position += new Vector3(0, 0, 0.01f); // move copy a bit back to not overlap text with others
