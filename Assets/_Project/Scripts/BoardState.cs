@@ -10,13 +10,27 @@ namespace _Project.Scripts
         public delegate void CubeSpawned(int x, int y, Cube cube);
 
         public static event CubeSpawned OnCubeSpawned;
+
+        public delegate void MergeEvent(MergeResult result);
+        public static event MergeEvent OnMerge;
         
         public const int BoardSize = 4;
 
         private const float FourProbability = 0.1f;
-        public readonly SmartGrid<Cube> boardSmartGrid = new(BoardSize, true);
+        public readonly SmartGrid<Cube> boardSmartGrid = new(BoardSize);
 
         public int Score;
+        
+        public BoardState()
+        {
+            for (var i = 0; i < BoardSize; i++)
+            {
+                for (var j = 0; j < BoardSize; j++)
+                {
+                    boardSmartGrid[i, j] = new Cube(0, i, j);
+                }
+            }
+        }
 
         public Cube this[int x, int y]
         {
@@ -28,7 +42,13 @@ namespace _Project.Scripts
         {
             var initialState = boardSmartGrid.AsList().Select(cube => cube.Value).ToArray();
 
-            boardSmartGrid.GetVectorsFromDirection(direction).ForEach(vector => Score += new GameVectorLogic(vector).Merge());
+            boardSmartGrid.GetVectorsFromDirection(direction).ForEach(vector =>
+            {
+                var result = new GameVectorLogic(vector).Merge();
+                OnMerge?.Invoke(result);
+                Score += result.score;
+                Debug.Log(result);
+            });
 
             var newState = boardSmartGrid.AsList().Select(cube => cube.Value).ToArray();
             if (initialState.SequenceEqual(newState))

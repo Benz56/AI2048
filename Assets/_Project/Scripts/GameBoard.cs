@@ -6,19 +6,15 @@ namespace _Project.Scripts
 {
     public class GameBoard : MonoBehaviour
     {
-        public delegate void GameBoardChanged(Direction? direction);
-
-        public static event GameBoardChanged OnGameBoardChanged;
         public static int AnimationCount { get; set; }
 
         public readonly BoardState BoardState = new();
 
         // Start is called before the first frame update
-        void Start()
+        public void Start()
         {
             BoardState.SetRandomCube();
             BoardState.SetRandomCube();
-            OnGameBoardChanged?.Invoke(null);
         }
 
         // Update is called once per frame
@@ -45,10 +41,7 @@ namespace _Project.Scripts
 
             if (direction == null) return;
 
-            if (BoardState.Move(direction.Value))
-            {
-                OnGameBoardChanged?.Invoke(direction.Value);
-            }
+            BoardState.Move(direction.Value);
         }
     }
 }

@@ -11,7 +11,6 @@ namespace _Project.Scripts
         public int animationSpeed = 20;
 
         public int value;
-        public bool ignoreInAnimation;
 
         private readonly Color[] textColors =
         {
@@ -59,10 +58,15 @@ namespace _Project.Scripts
             var geometricSeqToIndex = (int)(Mathf.Log(state.Value, 2) - 1);
             geometricSeqToIndex = geometricSeqToIndex > cubeColors.Count - 1 ? cubeColors.Count - 1 : geometricSeqToIndex;
             meshRenderer.material.color = cubeColors[geometricSeqToIndex];
-            // if (changed)
-            // {
-            //     StartCoroutine(Animate());
-            // }
+            if (!changed) return;
+            StartCoroutine(ScaleAnimate());
+            IEnumerator<WaitForSeconds> ScaleAnimate()
+            {
+                // increase size
+                transform.localScale *= 1.02f;
+                yield return new WaitForSeconds(0.1f);
+                transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
+            }
         }
 
         public void Visible(bool b)
@@ -71,34 +75,31 @@ namespace _Project.Scripts
             textMeshProUGUI.enabled = b;
         }
 
-
-        private IEnumerator<WaitForSeconds> Animate()
+        public void CreateMoveAnimation(CubePrefab targetCube, bool hideTarget)
         {
-            // increase size
-            transform.localScale *= 1.02f;
-            yield return new WaitForSeconds(0.1f);
-            transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
-        }
-
-        public void CreateMoveAnimation(CubePrefab targetCube)
-        {
-            GameBoard.AnimationCount++;
             var currentCube = transform;
             var toMove = Vector3.Distance(currentCube.position, targetCube.transform.position);
-            var copy = Instantiate(gameObject);
+            var copy = CreateCopy();
             Visible(false);
             StartCoroutine(AnimateCube());
 
+            GameBoard.AnimationCount++;
             IEnumerator AnimateCube()
             {
                 var target = targetCube.transform.position;
-                targetCube.Visible(false);
+                if (hideTarget)
+                {
+                    targetCube.Visible(false);
+                }
                 while (true)
                 {
                     if (copy.transform.position.Equals(target))
                     {
                         GameBoard.AnimationCount--;
-                        targetCube.Visible(true);                            
+                        if (hideTarget)
+                        {
+                            targetCube.Visible(true);
+                        }                            
                         Destroy(copy);
                         yield break;
                     }
@@ -106,6 +107,15 @@ namespace _Project.Scripts
                     copy.transform.position = Vector3.MoveTowards(copy.transform.position, target, Time.deltaTime * (animationSpeed * toMove));
                     yield return null;
                 }
+            }
+
+            GameObject CreateCopy()
+            {
+                var instantiate = Instantiate(gameObject);
+                var cubePrefab = GetComponent<CubePrefab>();
+                cubePrefab.Visible(true); // Make sure it is visible. Sometimes it is not visible for some reason
+                instantiate.transform.position += new Vector3(0, 0, 0.01f); // move copy a bit back to not overlap text with others
+                return instantiate;
             }
         }
     }

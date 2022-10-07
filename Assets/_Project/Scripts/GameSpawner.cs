@@ -37,9 +37,9 @@ namespace _Project.Scripts
                 }
             }
 
-            GameBoard.OnGameBoardChanged += MoveCubes;
             BoardState.OnCubeSpawned += CubeSpawned;
-            MoveCubes(null);
+            BoardState.OnMerge += AnimateMerge;
+            cubesSmartGrid.ForEach((x, y, prefab) => prefab.SetState(gameBoard.BoardState[x, y]));
             StartCoroutine(CheckGameOver());
         }
 
@@ -59,41 +59,28 @@ namespace _Project.Scripts
             // ReSharper disable once IteratorNeverReturns
         }
 
-        private void MoveCubes(Direction? direction)
+        private void AnimateMerge(MergeResult result)
         {
-            Debug.Log("?");
-            if (direction == null)
+            foreach (var (from, to) in result.movedCubes)
             {
-                cubesSmartGrid.ForEach((x, y, prefab) => prefab.SetState(gameBoard.BoardState[x, y]));
-            } else
+                cubesSmartGrid[to.x, to.y].SetState(gameBoard.BoardState[to.x, to.y]);
+                cubesSmartGrid[from.x, from.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], true);
+            }
+
+            foreach (var ((from1, from2), to) in result.mergedCubes)
             {
-                for (var i = 0; i < BoardState.BoardSize; i++)
+                cubesSmartGrid[to.x, to.y].SetState(gameBoard.BoardState[to.x, to.y]);
+                if (from1 != to)
                 {
-                    var physicalCubes = cubesSmartGrid.GetVectorInGrid(i, direction.Value);
-                    var boardCubes = gameBoard.BoardState.boardSmartGrid.GetVectorInGrid(i, direction.Value);
-                    var filled = physicalCubes[0].value != 0 ? 1 : 0;
-                    for (var j = 1; j < BoardState.BoardSize; j++)
-                    {
-                        if (physicalCubes[j].value == 0 || physicalCubes[j].ignoreInAnimation)
-                        {
-                            physicalCubes[j].ignoreInAnimation = false; // Used to ignore new tiles.
-                            continue;
-                        }
-                        physicalCubes[j].ignoreInAnimation = false; // Used to ignore new tiles.
-
-                        if (j != filled)
-                        {
-                            Debug.Log("Animation of " + physicalCubes[j].value + " from " + j + " to " + filled);
-                            physicalCubes[j].CreateMoveAnimation(physicalCubes[filled]);
-                            physicalCubes[filled].SetState(boardCubes[filled]);
-                        }
-
-                        filled++;
-                    }
+                    cubesSmartGrid[from1.x, from1.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], from2 != to);
+                }
+                if (from2 != to)
+                {
+                    cubesSmartGrid[from2.x, from2.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], from1 != to);
                 }
             }
 
-            if (gameBoard.BoardState.Score > 0)
+            if (result.score > 0)
             {
                 SetScoreText(gameBoard.BoardState.Score);
             }
@@ -101,9 +88,7 @@ namespace _Project.Scripts
 
         private void CubeSpawned(int x, int y, Cube cube)
         {
-            Debug.Log("2");
             cubesSmartGrid[x, y].SetState(cube);
-            cubesSmartGrid[x, y].ignoreInAnimation = true;
             cubesSmartGrid[x, y].Visible(true);
         }
 

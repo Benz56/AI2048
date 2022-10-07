@@ -4,23 +4,15 @@ using System.Linq;
 
 namespace _Project.Scripts
 {
-    public class SmartGrid<T> where T : new()
+    public class SmartGrid<T>
     {
         private readonly int size;
         private readonly T[,] grid;
 
-        public SmartGrid(int size, bool fill = false)
+        public SmartGrid(int size)
         {
             this.size = size;
             grid = new T[size, size];
-            if (!fill) return;
-            for (var i = 0; i < size; i++)
-            {
-                for (var j = 0; j < size; j++)
-                {
-                    grid[i, j] = new T();
-                }
-            }
         }
 
         public T this[int x, int y]
