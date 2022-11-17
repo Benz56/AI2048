@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -50,7 +49,7 @@ namespace _Project.Scripts
             {
                 if (gameBoard.BoardState.IsGameOver())
                 {
-                    scoreTextMeshPro.faceColor = Color.red;
+                    scoreTextMeshPro.color = Color.red;
                     yield break;
                 }
 

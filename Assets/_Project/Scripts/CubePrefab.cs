@@ -14,8 +14,8 @@ namespace _Project.Scripts
 
         private readonly Color[] textColors =
         {
-            new(4, 4, 4),
-            new(242, 235, 226)
+            new(4 / 255f, 4 / 255f, 4 / 255f),
+            new(242 / 255f, 235 / 255f, 226 / 255f)
         };
 
         private readonly List<Color> cubeColors = new()
@@ -59,6 +59,7 @@ namespace _Project.Scripts
             meshRenderer.material.color = cubeColors[geometricSeqToIndex];
             if (!changed) return;
             StartCoroutine(ScaleAnimate());
+
             IEnumerator<WaitForSeconds> ScaleAnimate()
             {
                 // increase size
@@ -83,6 +84,7 @@ namespace _Project.Scripts
             StartCoroutine(AnimateCube());
 
             GameBoard.AnimationCount++;
+
             IEnumerator AnimateCube()
             {
                 var target = targetCube.transform.position;
@@ -90,6 +92,7 @@ namespace _Project.Scripts
                 {
                     targetCube.Visible(false);
                 }
+
                 while (true)
                 {
                     if (copy.transform.position.Equals(target))
@@ -98,7 +101,8 @@ namespace _Project.Scripts
                         if (hideTarget)
                         {
                             targetCube.Visible(true);
-                        }                            
+                        }
+
                         Destroy(copy);
                         yield break;
                     }
