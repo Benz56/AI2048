@@ -7,7 +7,7 @@ namespace _Project.Scripts
 {
     public class GameSpawner : MonoBehaviour
     {
-        public GameBoard gameBoard;
+        public GameController gameController;
         public GameObject cubePrefab;
 
         private readonly SmartGrid<CubePrefab> cubesSmartGrid = new(BoardState.BoardSize);
@@ -38,7 +38,7 @@ namespace _Project.Scripts
 
             BoardState.OnCubeSpawned += CubeSpawned;
             BoardState.OnMerge += AnimateMerge;
-            cubesSmartGrid.ForEach((x, y, prefab) => prefab.SetState(gameBoard.BoardState[x, y]));
+            cubesSmartGrid.ForEach((x, y, prefab) => prefab.SetState(gameController.BoardState[x, y]));
             StartCoroutine(CheckGameOver());
         }
 
@@ -47,7 +47,7 @@ namespace _Project.Scripts
             var wait = new WaitForSeconds(0.2f);
             while (true)
             {
-                if (gameBoard.BoardState.IsGameOver())
+                if (gameController.BoardState.IsGameOver())
                 {
                     scoreTextMeshPro.color = Color.red;
                     yield break;
@@ -62,13 +62,13 @@ namespace _Project.Scripts
         {
             foreach (var (from, to) in result.movedCubes)
             {
-                cubesSmartGrid[to.x, to.y].SetState(gameBoard.BoardState[to.x, to.y]);
+                cubesSmartGrid[to.x, to.y].SetState(gameController.BoardState[to.x, to.y]);
                 cubesSmartGrid[from.x, from.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], true);
             }
 
             foreach (var ((from1, from2), to) in result.mergedCubes)
             {
-                cubesSmartGrid[to.x, to.y].SetState(gameBoard.BoardState[to.x, to.y]);
+                cubesSmartGrid[to.x, to.y].SetState(gameController.BoardState[to.x, to.y]);
                 if (from1 != to)
                 {
                     cubesSmartGrid[from1.x, from1.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], from2 != to);
@@ -81,7 +81,7 @@ namespace _Project.Scripts
 
             if (result.score > 0)
             {
-                SetScoreText(gameBoard.BoardState.Score);
+                SetScoreText(gameController.BoardState.Score);
             }
         }
 
@@ -99,7 +99,7 @@ namespace _Project.Scripts
         public override string ToString()
         {
             var maxDigitLength = cubesSmartGrid.AsList().Select(cube => cube.value).Max().ToString().Length;
-            var boardString = gameBoard.BoardState.IsGameOver() + "\n";
+            var boardString = gameController.BoardState.IsGameOver() + "\n";
             for (var y = 0; y < BoardState.BoardSize; y++)
             {
                 for (var x = 0; x < BoardState.BoardSize; x++)

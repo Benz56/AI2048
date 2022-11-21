@@ -47,7 +47,6 @@ namespace _Project.Scripts
                 var result = new GameVectorLogic(vector).Merge();
                 OnMerge?.Invoke(result);
                 Score += result.score;
-                Debug.Log(result);
             });
 
             var newState = boardSmartGrid.AsList().Select(cube => cube.Value).ToArray();

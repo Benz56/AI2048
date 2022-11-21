@@ -1,26 +1,16 @@
-using System;
-using Unity.VisualScripting;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace _Project.Scripts
+namespace _Project.Scripts.AI
 {
-    public class GameBoard : MonoBehaviour
+    public class HumanController : MonoBehaviour
     {
-        public static int AnimationCount { get; set; }
-
-        public readonly BoardState BoardState = new();
-
-        // Start is called before the first frame update
-        public void Start()
-        {
-            BoardState.SetRandomCube();
-            BoardState.SetRandomCube();
-        }
-
-        // Update is called once per frame
+        public AIManager aiManager;
+        public GameController gameController;
+        
         private void Update()
         {
-            if (AnimationCount > 0) return;
+            if (aiManager.aiType != AIType.HumanPlayer) return;
+            if (gameController.Animating()) return;
             Direction? direction = null;
             if (Input.GetKeyDown("up") || Input.GetKeyDown("w"))
             {
@@ -41,7 +31,7 @@ namespace _Project.Scripts
 
             if (direction == null) return;
 
-            BoardState.Move(direction.Value);
+            gameController.MakeMove(direction.Value);
         }
     }
 }

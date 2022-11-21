@@ -83,7 +83,7 @@ namespace _Project.Scripts
             Visible(false);
             StartCoroutine(AnimateCube());
 
-            GameBoard.AnimationCount++;
+            GameController.AnimationCount++;
 
             IEnumerator AnimateCube()
             {
@@ -97,7 +97,7 @@ namespace _Project.Scripts
                 {
                     if (copy.transform.position.Equals(target))
                     {
-                        GameBoard.AnimationCount--;
+                        GameController.AnimationCount--;
                         if (hideTarget)
                         {
                             targetCube.Visible(true);
