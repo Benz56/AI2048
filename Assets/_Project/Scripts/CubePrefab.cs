@@ -42,7 +42,7 @@ namespace _Project.Scripts
             textMeshProUGUI = GetComponentInChildren<TextMeshProUGUI>();
         }
 
-        public void SetState(Cube state)
+        public void SetState(Cube state, bool animate)
         {
             var changed = state.Value != value;
             value = state.Value;
@@ -57,7 +57,7 @@ namespace _Project.Scripts
             var geometricSeqToIndex = (int)(Mathf.Log(state.Value, 2) - 1);
             geometricSeqToIndex = geometricSeqToIndex > cubeColors.Count - 1 ? cubeColors.Count - 1 : geometricSeqToIndex;
             meshRenderer.material.color = cubeColors[geometricSeqToIndex];
-            if (!changed) return;
+            if (!changed || !animate) return;
             StartCoroutine(ScaleAnimate());
 
             IEnumerator<WaitForSeconds> ScaleAnimate()
@@ -75,8 +75,15 @@ namespace _Project.Scripts
             textMeshProUGUI.enabled = b;
         }
 
-        public void CreateMoveAnimation(CubePrefab targetCube, bool hideTarget)
+        public void CreateMoveAnimation(CubePrefab targetCube, bool hideTarget, bool animate)
         {
+            if (!animate)
+            {
+                Visible(false);
+                targetCube.Visible(true);
+                return;
+            }
+
             var currentCube = transform;
             var toMove = Vector3.Distance(currentCube.position, targetCube.transform.position);
             var copy = CreateCopy();

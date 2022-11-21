@@ -6,7 +6,7 @@ namespace _Project.Scripts.AI
     {
         public AIType aiType;
         private AIManager aiManager;
-        private GameController gameController;
+        protected GameController gameController;
         private BoardState boardState;
 
         private void Start()
@@ -16,9 +16,9 @@ namespace _Project.Scripts.AI
             boardState = gameController.BoardState;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            if (!IsSelectedAIType() || !CanMakeMove()) return;
+            if (aiManager.paused || !IsSelectedAIType() || !CanMakeMove()) return;
             SealedUpdate();
         }
 

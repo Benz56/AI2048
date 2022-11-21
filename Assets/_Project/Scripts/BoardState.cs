@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using Random = System.Random;
 
 namespace _Project.Scripts
 {
-    public class BoardState
+    public class BoardState : IResetAble
     {
         public delegate void CubeSpawned(int x, int y, Cube cube);
-
         public static event CubeSpawned OnCubeSpawned;
 
         public delegate void MergeEvent(MergeResult result);
         public static event MergeEvent OnMerge;
+
+        public delegate void ValidMoveEvent();
+        public static event ValidMoveEvent OnValidMove;
         
         public const int BoardSize = 4;
 
@@ -23,6 +24,18 @@ namespace _Project.Scripts
         
         public BoardState()
         {
+            Reset();
+        }
+
+        public Cube this[int x, int y]
+        {
+            get => BoardSmartGrid[x, y];
+            set => BoardSmartGrid[x, y] = value;
+        }
+
+        public void Reset()
+        {
+            Score = 0;
             for (var i = 0; i < BoardSize; i++)
             {
                 for (var j = 0; j < BoardSize; j++)
@@ -30,12 +43,6 @@ namespace _Project.Scripts
                     BoardSmartGrid[i, j] = new Cube(0, i, j);
                 }
             }
-        }
-
-        public Cube this[int x, int y]
-        {
-            get => BoardSmartGrid[x, y];
-            set => BoardSmartGrid[x, y] = value;
         }
 
         public bool Move(Direction direction)
@@ -54,8 +61,9 @@ namespace _Project.Scripts
             {
                 return false;
             }
-
+            
             SetRandomCube();
+            OnValidMove?.Invoke();
             return true;
         }
 

@@ -5,10 +5,11 @@ using UnityEngine;
 
 namespace _Project.Scripts
 {
-    public class GameSpawner : MonoBehaviour
+    public class GameSpawner : MonoBehaviour, IResetAble
     {
         public GameController gameController;
         public GameObject cubePrefab;
+        public bool animations;
 
         private readonly SmartGrid<CubePrefab> cubesSmartGrid = new(BoardState.BoardSize);
         private GameObject boardHolder;
@@ -37,45 +38,37 @@ namespace _Project.Scripts
             }
 
             BoardState.OnCubeSpawned += CubeSpawned;
-            BoardState.OnMerge += AnimateMerge;
-            cubesSmartGrid.ForEach((x, y, prefab) => prefab.SetState(gameController.BoardState[x, y]));
-            StartCoroutine(CheckGameOver());
+            BoardState.OnMerge += HandleMerge;
+            BoardState.OnValidMove += OnValidMove;
+            cubesSmartGrid.ForEach((x, y, prefab) => prefab.SetState(gameController.BoardState[x, y], animations));
         }
 
-        private IEnumerator<WaitForSeconds> CheckGameOver()
+        public void Reset()
         {
-            var wait = new WaitForSeconds(0.2f);
-            while (true)
-            {
-                if (gameController.BoardState.IsGameOver())
-                {
-                    scoreTextMeshPro.color = Color.red;
-                    yield break;
-                }
-
-                yield return wait;
-            }
-            // ReSharper disable once IteratorNeverReturns
+            SetScoreText(0);
+            cubesSmartGrid.ForEach((x, y, prefab) => prefab.SetState(gameController.BoardState[x, y], animations));
         }
 
-        private void AnimateMerge(MergeResult result)
+        // TODO Visual glitch when not animating.
+        private void HandleMerge(MergeResult result)
         {
             foreach (var (from, to) in result.movedCubes)
             {
-                cubesSmartGrid[to.x, to.y].SetState(gameController.BoardState[to.x, to.y]);
-                cubesSmartGrid[from.x, from.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], true);
+                cubesSmartGrid[to.x, to.y].SetState(gameController.BoardState[to.x, to.y], animations);
+                cubesSmartGrid[from.x, from.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], true, animations);
             }
 
             foreach (var ((from1, from2), to) in result.mergedCubes)
             {
-                cubesSmartGrid[to.x, to.y].SetState(gameController.BoardState[to.x, to.y]);
+                cubesSmartGrid[to.x, to.y].SetState(gameController.BoardState[to.x, to.y], animations);
                 if (from1 != to)
                 {
-                    cubesSmartGrid[from1.x, from1.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], from2 != to);
+                    cubesSmartGrid[from1.x, from1.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], from2 != to, animations);
                 }
+
                 if (from2 != to)
                 {
-                    cubesSmartGrid[from2.x, from2.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], from1 != to);
+                    cubesSmartGrid[from2.x, from2.y].CreateMoveAnimation(cubesSmartGrid[to.x, to.y], from1 != to, animations);
                 }
             }
 
@@ -85,9 +78,16 @@ namespace _Project.Scripts
             }
         }
 
+        private void OnValidMove()
+        {
+            if (!gameController.BoardState.IsGameOver()) return;
+            gameController.GameOver();
+            scoreTextMeshPro.color = Color.red;
+        }
+
         private void CubeSpawned(int x, int y, Cube cube)
         {
-            cubesSmartGrid[x, y].SetState(cube);
+            cubesSmartGrid[x, y].SetState(cube, animations);
             cubesSmartGrid[x, y].Visible(true);
         }
 
@@ -95,7 +95,7 @@ namespace _Project.Scripts
         {
             scoreTextMeshPro.text = $"Score\n{score}";
         }
-        
+
         public override string ToString()
         {
             var maxDigitLength = cubesSmartGrid.AsList().Select(cube => cube.value).Max().ToString().Length;

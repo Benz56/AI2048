@@ -4,6 +4,7 @@ namespace _Project.Scripts.AI
 {
     public class AIManager : MonoBehaviour
     {
+        public bool paused;
         public AIType selectedAIType;
 
         void Start()
@@ -18,6 +19,6 @@ namespace _Project.Scripts.AI
 
     public enum AIType
     {
-        HumanPlayer, ExpectiMax, NeuralNetwork 
+        HumanPlayer, Random, ExpectiMax, NeuralNetwork 
     }
 }

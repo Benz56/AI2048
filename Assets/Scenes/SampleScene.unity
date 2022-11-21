@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 184652615}
   - component: {fileID: 184652613}
   - component: {fileID: 184652612}
+  - component: {fileID: 184652616}
   m_Layer: 0
   m_Name: AI
   m_TagString: Untagged
@@ -154,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774d6875202f45378ea3ba09b14e34be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aiType: 1
+  aiType: 2
 --- !u!114 &184652613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,7 +196,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff4f41c40622b4545a1f68c0ae2e2f44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedAIType: 0
+  paused: 0
+  selectedAIType: 1
+--- !u!114 &184652616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 184652611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e240bd89ce44453abdf01684761d89d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aiType: 1
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -576,6 +591,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8287bac2233ff949b49495b857c86a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameSpawner: {fileID: 1147277199}
 --- !u!4 &1147277198
 Transform:
   m_ObjectHideFlags: 0
@@ -606,3 +622,4 @@ MonoBehaviour:
   gameController: {fileID: 1147277197}
   cubePrefab: {fileID: 3917801952166612634, guid: eaa1cd24fd59d4d4a913d338f88398bf,
     type: 3}
+  animations: 0
