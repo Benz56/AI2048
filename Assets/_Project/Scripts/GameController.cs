@@ -18,9 +18,9 @@ namespace _Project.Scripts
             return AnimationCount > 0;
         }
         
-        public void MakeMove(Direction direction)
+        public bool MakeMove(Direction direction)
         {
-            BoardState.Move(direction);
+            return BoardState.Move(direction);
         }
     }
 }

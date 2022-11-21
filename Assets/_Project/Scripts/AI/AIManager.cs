@@ -4,11 +4,10 @@ namespace _Project.Scripts.AI
 {
     public class AIManager : MonoBehaviour
     {
-        public AIType aiType;
-        
+        public AIType selectedAIType;
+
         void Start()
         {
-        
         }
 
         void Update()

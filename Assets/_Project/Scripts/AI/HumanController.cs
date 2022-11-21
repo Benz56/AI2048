@@ -2,15 +2,10 @@
 
 namespace _Project.Scripts.AI
 {
-    public class HumanController : MonoBehaviour
+    public class HumanController : AbstractAI
     {
-        public AIManager aiManager;
-        public GameController gameController;
-        
-        private void Update()
+        public override void SealedUpdate()
         {
-            if (aiManager.aiType != AIType.HumanPlayer) return;
-            if (gameController.Animating()) return;
             Direction? direction = null;
             if (Input.GetKeyDown("up") || Input.GetKeyDown("w"))
             {
@@ -31,7 +26,7 @@ namespace _Project.Scripts.AI
 
             if (direction == null) return;
 
-            gameController.MakeMove(direction.Value);
+            MakeMove(direction.Value);
         }
     }
 }
