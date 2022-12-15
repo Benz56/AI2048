@@ -11,8 +11,7 @@ namespace _Project.Scripts
 
         public void Start()
         {
-            BoardState.SetRandomCube();
-            BoardState.SetRandomCube();
+            BoardState.Reset();
         }
 
         [ContextMenu("Reset")]
@@ -20,8 +19,6 @@ namespace _Project.Scripts
         {
             BoardState.Reset();
             gameSpawner.Reset();
-            BoardState.SetRandomCube();
-            BoardState.SetRandomCube();
         }
 
         public bool Animating()
@@ -36,8 +33,6 @@ namespace _Project.Scripts
 
         public void GameOver()
         {
-            Debug.Log("Game Over");
-            Debug.Log(BoardState);
         }
     }
 }

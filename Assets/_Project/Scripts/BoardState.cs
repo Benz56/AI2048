@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Random = System.Random;
 
@@ -20,8 +21,8 @@ namespace _Project.Scripts
         private const float FourProbability = 0.1f;
         public readonly SmartGrid<Cube> BoardSmartGrid = new(BoardSize);
 
-        public int Score;
-        
+        public int Score { get; set; }
+
         public BoardState()
         {
             Reset();
@@ -43,10 +44,13 @@ namespace _Project.Scripts
                     BoardSmartGrid[i, j] = new Cube(0, i, j);
                 }
             }
+            SetRandomCube();
+            SetRandomCube();
         }
 
         public bool Move(Direction direction)
         {
+            if (direction == Direction.Undefined) throw new InvalidOperationException("Direction is undefined");
             var initialState = BoardSmartGrid.AsList().Select(cube => cube.Value).ToArray();
 
             BoardSmartGrid.GetVectorsFromDirection(direction).ForEach(vector =>
@@ -135,6 +139,11 @@ namespace _Project.Scripts
             }
 
             return boardString;
+        }
+
+        public int GetMaxTile()
+        {
+            return BoardSmartGrid.AsList().Select(cube => cube.Value).Max();
         }
     }
 }

@@ -4,6 +4,8 @@ namespace _Project.Scripts.AI
 {
     public class HumanController : AbstractAI
     {
+        public override AIType GetAiType() => AIType.HumanPlayer;
+
         public override void SealedUpdate()
         {
             Direction? direction = null;

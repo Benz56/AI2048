@@ -63,5 +63,19 @@ namespace _Project.Scripts
                 }
             }
         }
+        
+        public void AsUlong()
+        {
+            ulong state = 0;
+            for (var x = 0; x < size; x++)
+            {
+                for (var y = 0; y < size; y++)
+                {
+                    state = state << 1;
+                    if (grid[x, y].Equals(default(T)))
+                        state = state | 1;
+                }
+            }
+        }
     }
 }

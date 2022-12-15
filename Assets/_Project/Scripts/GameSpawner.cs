@@ -46,6 +46,7 @@ namespace _Project.Scripts
         public void Reset()
         {
             SetScoreText(0);
+            scoreTextMeshPro.color = Color.white;
             cubesSmartGrid.ForEach((x, y, prefab) => prefab.SetState(gameController.BoardState[x, y], animations));
         }
 
